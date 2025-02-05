@@ -12,6 +12,7 @@ struct AminoAcidQuizView: View {
     @State private var userInputs: [String?]
     @State private var showResult = false
     @State private var isCorrect = false
+    @State private var dict: [Int: Bool] = [:]
     
     init(aminoAcid: AminoAcidType) {
         self.aminoAcid = aminoAcid
@@ -45,8 +46,7 @@ struct AminoAcidQuizView: View {
         .alert(isPresented: $showResult) {
             Alert(
                 title: Text(isCorrect ? "Correct!" : "Wrong!"),
-//                message: Text(isCorrect ? "You completed the side chain correctly!" : "Try again! The correct atoms were \(aminoAcid.correctRGroup.joined(separator: " - "))."),
-                message: Text("Corect"),
+                message: Text(isCorrect ? "You completed the side chain correctly!" : "Try again!"),
                 dismissButton: .default(Text("OK"))
             )
         }
@@ -92,11 +92,7 @@ struct AminoAcidQuizView: View {
             Text("R = ")
                 .font(.title2)
                 .bold()
-//                    ForEach(0..<userInputs.count, id: \.self) { index in
-//                        DropTargetView(selectedAtom: $userInputs[index])
-//                    }
             
-            // try to assign to each box, and check
             HStack(alignment: .center) {
                 ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
                     if index != 0 {
@@ -104,7 +100,12 @@ struct AminoAcidQuizView: View {
                     }
                     VStack {
                         if let firstChild = chain.child.first {
-                            DropTargetView(correctAnswer: firstChild, shouldShowAnswer: $showResult)
+                            DropTargetView(
+                                correctAnswer: firstChild,
+                                index: (index * 10) + 1,
+                                shouldShowAnswer: $showResult) { index, isCorrect in
+                                    dict[index] = isCorrect
+                                }
                         } else {
                             Text(chain.child.first ?? " ")
                                 .frame(height: 50)
@@ -113,13 +114,22 @@ struct AminoAcidQuizView: View {
                         Text(chain.child.isEmpty ? " " : "|")
                             .frame(height: 10)
                         
-                        DropTargetView(correctAnswer: chain.atom, shouldShowAnswer: $showResult)
-                        
+                        DropTargetView(
+                            correctAnswer: chain.atom,
+                            index: (index * 10) + 2,
+                            shouldShowAnswer: $showResult) { index, isCorrect in
+                                dict[index] = isCorrect
+                            }
                         Text(chain.child.count > 1 ? "|" : " ")
                             .frame(height: 10)
                         
                         if chain.child.count > 1, let lastChild = chain.child.last {
-                            DropTargetView(correctAnswer: lastChild, shouldShowAnswer: $showResult)
+                            DropTargetView(
+                                correctAnswer: lastChild,
+                                index: (index * 10) + 3,
+                                shouldShowAnswer: $showResult) { index, isCorrect in
+                                    dict[index] = isCorrect
+                                }
                         } else {
                             Text(chain.child.first ?? " ")
                                 .frame(height: 50)
@@ -147,12 +157,12 @@ struct AminoAcidQuizView: View {
     private var checkButton: some View {
         Button("Check Answer") {
             showResult = true
+            isCorrect = dict.values.allSatisfy({ $0 })
         }
         .padding()
-        .background(userInputs.contains(nil) ? Color.gray : Color.green)
+        .background(Color.green)
         .foregroundColor(.white)
         .cornerRadius(10)
-        .disabled(userInputs.contains(nil))
     }
     
     private func getAtoms() -> [String] {
@@ -166,8 +176,10 @@ struct AminoAcidQuizView: View {
 struct DropTargetView: View {
     @State var input: String = "_"
     let correctAnswer: String
+    let index: Int
     @Binding var shouldShowAnswer: Bool
     @State private var borderColor: Color = .clear
+    let onCheckAnswer: ((Int, Bool) -> Void)?
 
     var body: some View {
         Text(input)
@@ -177,11 +189,11 @@ struct DropTargetView: View {
             .frame(height: 50)
             .background(Color.yellow.opacity(0.3))
             .cornerRadius(8)
-            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black, lineWidth: 1))
-            .border(shouldShowAnswer ? (input == correctAnswer ? Color.green : Color.red) : .clear, width: 2)
+            .overlay(RoundedRectangle(cornerRadius: 8).stroke(shouldShowAnswer ? (input == correctAnswer ? Color.green : Color.red) : Color.black, lineWidth: 1))
             .dropDestination(for: String.self, action: { items, location in
                 if let first = items.first {
                     input = first
+                    onCheckAnswer?(index, correctAnswer == input)
                 }
                 return true
             })
