@@ -7,7 +7,11 @@
 
 import SwiftUI
 
+let completedAminoAcidsKey = "completedAminoAcids"
+
 struct AminoAcidSelectionView: View {
+    @State private var completedAminoAcids: [String] = UserDefaults.standard.getArray(forKey: completedAminoAcidsKey)
+    
     private var groupedAminoAcids: [String: [AminoAcidType]] = {
         return Dictionary(grouping: AminoAcidType.allCases, by: { $0.model.category })
     }()
@@ -28,21 +32,44 @@ struct AminoAcidSelectionView: View {
     
     private var list: some View {
         List {
-            ForEach(groupedAminoAcids.keys.sorted(), id: \.self) { category in
-                Section(header: Text(category).bold()) {
-                    ForEach(groupedAminoAcids[category]!, id: \.self) { aminoAcid in
-                        NavigationLink(
-                            destination: AminoAcidQuizView(aminoAcid: aminoAcid),
-                            label: {
-                                Text(aminoAcid.rawValue)
-                                    .padding()
-                            }
-                        )
-                    }
-                }
+            categorySections
+        }
+    }
+    
+    private var categorySections: some View {
+        ForEach(groupedAminoAcids.keys.sorted(), id: \.self) { category in
+            Section(header: Text(category).bold()) {
+                aminoAcidRows(for: category)
             }
         }
     }
+    
+    private func aminoAcidRows(for category: String) -> some View {
+        ForEach(groupedAminoAcids[category]!, id: \.self) { aminoAcid in
+            aminoAcidRow(for: aminoAcid)
+        }
+    }
+    
+    private func aminoAcidRow(for aminoAcid: AminoAcidType) -> some View {
+        NavigationLink(
+            destination: AminoAcidQuizView(
+                aminoAcid: aminoAcid,
+                completedAminoAcids: $completedAminoAcids
+            ),
+            label: {
+                HStack {
+                    Text(aminoAcid.rawValue)
+                        .padding()
+                    Spacer()
+                    if completedAminoAcids.contains(aminoAcid.rawValue) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
+            }
+        )
+    }
+
 }
 
 

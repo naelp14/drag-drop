@@ -9,15 +9,12 @@ import SwiftUI
 
 struct AminoAcidQuizView: View {
     let aminoAcid: AminoAcidType
-    @State private var userInputs: [String?]
+    @Binding var completedAminoAcids: [String]
     @State private var showResult = false
     @State private var isCorrect = false
     @State private var dict: [Int: Bool] = [:]
     
-    init(aminoAcid: AminoAcidType) {
-        self.aminoAcid = aminoAcid
-        self._userInputs = State(initialValue: Array(repeating: nil, count: aminoAcid.model.correctRGroup.count))
-    }
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VStack {
@@ -47,7 +44,12 @@ struct AminoAcidQuizView: View {
             Alert(
                 title: Text(isCorrect ? "Correct!" : "Wrong!"),
                 message: Text(isCorrect ? "You completed the side chain correctly!" : "Try again!"),
-                dismissButton: .default(Text("OK"))
+                dismissButton: .default(Text("OK")) {
+                    if isCorrect {
+                        markQuizAsCompleted()
+                        dismiss()
+                    }
+                }
             )
         }
     }
@@ -165,11 +167,19 @@ struct AminoAcidQuizView: View {
         .cornerRadius(10)
     }
     
+    // MARK: - Private Functions
     private func getAtoms() -> [String] {
         var mainChains = aminoAcid.model.correctRGroup.map({ $0.atom })
         let sideChains = aminoAcid.model.correctRGroup.flatMap({ $0.child })
         mainChains.append(contentsOf: sideChains)
         return mainChains
+    }
+    
+    private func markQuizAsCompleted() {
+        if !completedAminoAcids.contains(aminoAcid.model.name) {
+            completedAminoAcids.append(aminoAcid.model.name)
+            UserDefaults.standard.setArray(completedAminoAcids, forKey: completedAminoAcidsKey)
+        }
     }
 }
 
