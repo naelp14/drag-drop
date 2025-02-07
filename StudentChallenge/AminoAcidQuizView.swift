@@ -10,6 +10,9 @@ import SwiftUI
 struct AminoAcidQuizView: View {
     let aminoAcid: AminoAcidType
     @Binding var completedAminoAcids: [String]
+    let isFullQuiz: Bool
+    let onCompletion: ((Bool) -> Void)?
+    
     @State private var showResult = false
     @State private var isCorrect = false
     @State private var dict: [Int: Bool] = [:]
@@ -18,23 +21,18 @@ struct AminoAcidQuizView: View {
 
     var body: some View {
         VStack {
-            instructionText
-
-            VStack {
-                Text("Amino Acid: \(aminoAcid.model.name)")
-                    .font(.headline)
-                    .padding(.bottom, 10)
-
-                aminoAcidStructure
-                sideChainStructure
-            }
-            .padding()
-
-            Text("Select Atoms for \(aminoAcid.model.name)")
-                .font(.headline)
+            Text("Amino Acid: \(aminoAcid.model.name)")
+                .font(.title)
+                .padding(.bottom, 10)
+            Spacer()
+            
+            sideChainStructure
                 .padding()
 
             Spacer()
+            Text("Drag the correct atoms into the blanks")
+                .font(.headline)
+                .padding()
             
             answerOptions
             checkButton
@@ -44,48 +42,17 @@ struct AminoAcidQuizView: View {
             Alert(
                 title: Text(isCorrect ? "Correct!" : "Wrong!"),
                 message: Text(isCorrect ? "You completed the side chain correctly!" : "Try again!"),
-                dismissButton: .default(Text("OK")) {
+                dismissButton: .default(Text(isFullQuiz ? "Next" : "OK")) {
                     if isCorrect {
-                        markQuizAsCompleted()
-                        dismiss()
+                        if isFullQuiz {
+                            onCompletion?(isCorrect)
+                        } else {
+                            markQuizAsCompleted()
+                            dismiss()
+                        }
                     }
                 }
             )
-        }
-    }
-    
-    private var instructionText: some View {
-        Text("Drag the correct atoms into the blanks")
-            .font(.title)
-            .bold()
-            .padding()
-    }
-    
-    private var aminoAcidStructure: some View {
-        HStack {
-            VStack {
-                Text("H").foregroundColor(.red)
-                Text("|")
-                Text("N").foregroundColor(.red)
-                Text("|")
-                Text("H").foregroundColor(.red)
-            }
-            Text("- ").font(.title)
-            VStack {
-                Text("H")
-                Text("|")
-                Text("C")
-                Text("|")
-                Text("R")
-            }
-            Text(" -").font(.title)
-            VStack {
-                Text("O").foregroundColor(.purple)
-                Text("||")
-                Text("C")
-                Text("|")
-                Text("OH").foregroundColor(.purple)
-            }
         }
     }
     
@@ -161,6 +128,7 @@ struct AminoAcidQuizView: View {
             showResult = true
             isCorrect = dict.values.allSatisfy({ $0 })
         }
+        .frame(maxWidth: .infinity)
         .padding()
         .background(Color.green)
         .foregroundColor(.white)
@@ -193,12 +161,12 @@ struct DropTargetView: View {
 
     var body: some View {
         Text(input)
-            .font(.title)
             .foregroundColor(input.isEmpty ? .red : .black)
             .frame(minWidth: 50)
             .frame(height: 50)
             .background(Color.yellow.opacity(0.3))
             .cornerRadius(8)
+            .padding(2)
             .overlay(RoundedRectangle(cornerRadius: 8).stroke(shouldShowAnswer ? (input == correctAnswer ? Color.green : Color.red) : Color.black, lineWidth: 1))
             .dropDestination(for: String.self, action: { items, location in
                 if let first = items.first {
