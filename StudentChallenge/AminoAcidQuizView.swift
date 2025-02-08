@@ -113,11 +113,7 @@ struct AminoAcidQuizView: View {
     private var answerOptions: some View {
         HStack {
             ForEach(getAtoms().shuffled(), id: \.self) { atom in
-                Text(atom)
-                    .padding()
-                    .background(Color.gray.opacity(0.3))
-                    .cornerRadius(8)
-                    .draggable(atom)
+                DraggableAtomView(atom: atom)
             }
         }
         .padding()
@@ -128,6 +124,7 @@ struct AminoAcidQuizView: View {
             showResult = true
             isCorrect = dict.values.allSatisfy({ $0 })
         }
+        .sensoryFeedback(.warning, trigger: isCorrect)
         .frame(maxWidth: .infinity)
         .padding()
         .background(Color.green)
@@ -171,6 +168,9 @@ struct DropTargetView: View {
             .dropDestination(for: String.self, action: { items, location in
                 if let first = items.first {
                     input = first
+                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                    generator.prepare()
+                    generator.impactOccurred()
                     onCheckAnswer?(index, correctAnswer == input)
                 }
                 return true
@@ -178,4 +178,30 @@ struct DropTargetView: View {
     }
 }
 
+struct DraggableAtomView: View {
+    let atom: String
+    @State private var isWiggling = false
 
+    var body: some View {
+        Text(atom)
+            .padding()
+            .frame(minWidth: 80, minHeight: 50)
+            .background(Color.gray.opacity(0.3))
+            .cornerRadius(8)
+            .shadow(radius: 2)
+            .rotationEffect(.degrees(isWiggling ? 3 : -3))
+            .animation(
+                Animation.easeInOut(duration: 0.1)
+                    .repeatForever(autoreverses: true), value: isWiggling
+            )
+            .onAppear {
+                isWiggling = true
+            }
+            .onDrag {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.prepare()
+                generator.impactOccurred()
+                return NSItemProvider(object: atom as NSString)
+            }
+    }
+}
