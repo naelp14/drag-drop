@@ -1,12 +1,13 @@
 import SwiftUI
 
 struct FullQuizView: View {
-    var category: String? = nil // ✅ Optional category parameter
+    var category: String? = nil
     @State private var aminoAcids: [AminoAcidType] = []
     @State private var currentIndex = 0
     @State private var showFinalResult = false
     @State private var score = 0
-    
+    @State private var resetTrigger = UUID()
+
     init(category: String? = nil) {
         self.category = category
         self._aminoAcids = State(initialValue: category == nil
@@ -23,6 +24,7 @@ struct FullQuizView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
+        .id(resetTrigger)
     }
 
     private var quizPage: some View {
@@ -59,6 +61,7 @@ struct FullQuizView: View {
     private func goToNextQuestion() {
         if currentIndex < aminoAcids.count - 1 {
             currentIndex += 1
+            resetTrigger = UUID()
         } else {
             showFinalResult = true
         }
@@ -68,6 +71,7 @@ struct FullQuizView: View {
         aminoAcids.shuffle()
         currentIndex = 0
         score = 0
+        resetTrigger = UUID()
         showFinalResult = false
     }
 }

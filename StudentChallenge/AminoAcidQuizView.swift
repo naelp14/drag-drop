@@ -12,11 +12,12 @@ struct AminoAcidQuizView: View {
     @Binding var completedAminoAcids: [String]
     let isFullQuiz: Bool
     let onCompletion: ((Bool) -> Void)?
-    
+
     @State private var showResult = false
     @State private var isCorrect = false
     @State private var dict: [Int: Bool] = [:]
-    
+    @State private var shuffledAnswers: [String] = []
+
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -25,7 +26,7 @@ struct AminoAcidQuizView: View {
                 .font(.title)
                 .padding(.bottom, 10)
             Spacer()
-            
+
             sideChainStructure
                 .padding()
 
@@ -33,11 +34,14 @@ struct AminoAcidQuizView: View {
             Text("Drag the correct atoms into the blanks")
                 .font(.headline)
                 .padding()
-            
+
             answerOptions
             checkButton
         }
         .padding(8)
+        .onAppear {
+            resetQuizState()
+        }
         .alert(isPresented: $showResult) {
             Alert(
                 title: Text(isCorrect ? "Correct!" : "Wrong!"),
@@ -55,13 +59,13 @@ struct AminoAcidQuizView: View {
             )
         }
     }
-    
+
     private var sideChainStructure: some View {
         HStack {
             Text("R = ")
                 .font(.title2)
                 .bold()
-            
+
             HStack(alignment: .center) {
                 ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
                     if index != 0 {
@@ -72,33 +76,31 @@ struct AminoAcidQuizView: View {
                             DropTargetView(
                                 correctAnswer: firstChild,
                                 index: (index * 10) + 1,
-                                shouldShowAnswer: $showResult) { index, isCorrect in
-                                    dict[index] = isCorrect
-                                }
+                                shouldShowAnswer: $showResult
+                            ) { index, isCorrect in dict[index] = isCorrect }
                         } else {
                             Text(chain.child.first ?? " ")
                                 .frame(height: 50)
                         }
-                        
+
                         Text(chain.child.isEmpty ? " " : "|")
                             .frame(height: 10)
-                        
+
                         DropTargetView(
                             correctAnswer: chain.atom,
                             index: (index * 10) + 2,
-                            shouldShowAnswer: $showResult) { index, isCorrect in
-                                dict[index] = isCorrect
-                            }
+                            shouldShowAnswer: $showResult
+                        ) { index, isCorrect in dict[index] = isCorrect }
+
                         Text(chain.child.count > 1 ? "|" : " ")
                             .frame(height: 10)
-                        
+
                         if chain.child.count > 1, let lastChild = chain.child.last {
                             DropTargetView(
                                 correctAnswer: lastChild,
                                 index: (index * 10) + 3,
-                                shouldShowAnswer: $showResult) { index, isCorrect in
-                                    dict[index] = isCorrect
-                                }
+                                shouldShowAnswer: $showResult
+                            ) { index, isCorrect in dict[index] = isCorrect }
                         } else {
                             Text(chain.child.first ?? " ")
                                 .frame(height: 50)
@@ -111,8 +113,8 @@ struct AminoAcidQuizView: View {
     }
     
     private var answerOptions: some View {
-        HStack {
-            ForEach(getAtoms().shuffled(), id: \.self) { atom in
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80), spacing: 10)]) {
+            ForEach(Array(shuffledAnswers.enumerated()), id: \.offset) { _, atom in
                 DraggableAtomView(atom: atom)
             }
         }
@@ -122,7 +124,11 @@ struct AminoAcidQuizView: View {
     private var checkButton: some View {
         Button("Check Answer") {
             showResult = true
-            isCorrect = dict.values.allSatisfy({ $0 })
+            if dict.isEmpty || dict.count != shuffledAnswers.count {
+                isCorrect = false
+            } else {
+                isCorrect = dict.values.allSatisfy { $0 }
+            }
         }
         .sensoryFeedback(.warning, trigger: isCorrect)
         .frame(maxWidth: .infinity)
@@ -131,8 +137,15 @@ struct AminoAcidQuizView: View {
         .foregroundColor(.white)
         .cornerRadius(10)
     }
-    
+
     // MARK: - Private Functions
+    private func resetQuizState() {
+        shuffledAnswers = getAtoms().shuffled()
+        dict = [:]
+        isCorrect = false
+        showResult = false
+    }
+
     private func getAtoms() -> [String] {
         var mainChains = aminoAcid.model.correctRGroup.map({ $0.atom })
         let sideChains = aminoAcid.model.correctRGroup.flatMap({ $0.child })
