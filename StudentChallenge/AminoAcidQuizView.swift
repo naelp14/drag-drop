@@ -189,13 +189,15 @@ struct DraggableAtomView: View {
             .background(Color.gray.opacity(0.3))
             .cornerRadius(8)
             .shadow(radius: 2)
-            .rotationEffect(.degrees(isWiggling ? 3 : -3))
+            .rotationEffect(.degrees(isWiggling ? 2 : -2))
             .animation(
                 Animation.easeInOut(duration: 0.1)
                     .repeatForever(autoreverses: true), value: isWiggling
             )
             .onAppear {
-                isWiggling = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0...0.2)) {
+                    isWiggling = true
+                }
             }
             .onDrag {
                 let generator = UIImpactFeedbackGenerator(style: .medium)
