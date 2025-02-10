@@ -42,21 +42,10 @@ struct AminoAcidQuizView: View {
         .onAppear {
             resetQuizState()
         }
-        .alert(isPresented: $showResult) {
-            Alert(
-                title: Text(isCorrect ? "Correct!" : "Wrong!"),
-                message: Text(isCorrect ? "You completed the side chain correctly!" : "Try again!"),
-                dismissButton: .default(Text(isFullQuiz ? "Next" : "OK")) {
-                    if isCorrect {
-                        if isFullQuiz {
-                            onCompletion?(isCorrect)
-                        } else {
-                            markQuizAsCompleted()
-                            dismiss()
-                        }
-                    }
-                }
-            )
+        .sheet(isPresented: $showResult) {
+            successBottomSheet
+                .presentationDetents([.medium])
+                .presentationDragIndicator(.visible)
         }
     }
 
@@ -136,6 +125,41 @@ struct AminoAcidQuizView: View {
         .background(Color.green)
         .foregroundColor(.white)
         .cornerRadius(10)
+    }
+    
+    private var successBottomSheet: some View {
+        VStack(spacing: 20) {
+            Text(isCorrect ? "🎉 Correct!" : "❌ Wrong!")
+                .font(.largeTitle)
+                .bold()
+                .foregroundColor(isCorrect ? .green : .red)
+
+            Text(isCorrect ? "You completed the side chain correctly!" : "Try again!")
+
+            if isFullQuiz {
+                Button("Next Question") {
+                    onCompletion?(isCorrect)
+                    showResult = false
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            } else {
+                Button("OK") {
+                    showResult = false
+                    dismiss()
+                    markQuizAsCompleted()
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+            }
+        }
+        .padding()
     }
 
     // MARK: - Private Functions
