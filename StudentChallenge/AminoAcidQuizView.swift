@@ -44,7 +44,7 @@ struct AminoAcidQuizView: View {
         }
         .sheet(isPresented: $showResult) {
             successBottomSheet
-                .presentationDetents([.medium])
+                .presentationDetents([.height(200)])
                 .presentationDragIndicator(.visible)
         }
     }
@@ -68,7 +68,7 @@ struct AminoAcidQuizView: View {
                                 shouldShowAnswer: $showResult
                             ) { index, isCorrect in dict[index] = isCorrect }
                         } else {
-                            Text(chain.child.first ?? " ")
+                            Text(" ")
                                 .frame(height: 50)
                         }
 
@@ -91,7 +91,7 @@ struct AminoAcidQuizView: View {
                                 shouldShowAnswer: $showResult
                             ) { index, isCorrect in dict[index] = isCorrect }
                         } else {
-                            Text(chain.child.first ?? " ")
+                            Text(" ")
                                 .frame(height: 50)
                         }
                     }
@@ -134,27 +134,38 @@ struct AminoAcidQuizView: View {
                 .bold()
                 .foregroundColor(isCorrect ? .green : .red)
 
-            Text(isCorrect ? "You completed the side chain correctly!" : "Try again!")
+            Text(isCorrect ? "You completed the side chain correctly!" : "Ahh it's not the right answer!")
 
-            if isFullQuiz {
-                Button("Next Question") {
-                    onCompletion?(isCorrect)
+            if isCorrect {
+                if isFullQuiz {
+                    Button("Next Question") {
+                        onCompletion?(isCorrect)
+                        showResult = false
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                } else {
+                    Button("OK") {
+                        showResult = false
+                        dismiss()
+                        markQuizAsCompleted()
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                }
+            } else {
+                Button("Try Again") {
                     showResult = false
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-            } else {
-                Button("OK") {
-                    showResult = false
-                    dismiss()
-                    markQuizAsCompleted()
-                }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(10)
             }

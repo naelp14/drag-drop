@@ -82,6 +82,7 @@ struct HomeView: View {
                 self.selectedCategory = selectedCategory
                 self.navigateToCategoryQuiz = true
             }
+            .presentationDetents([.medium])
         }
     }
     
