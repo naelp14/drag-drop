@@ -11,6 +11,8 @@ struct AminoAcidQuizView: View {
     let aminoAcid: AminoAcidType
     @Binding var completedAminoAcids: [String]
     let isFullQuiz: Bool
+    var totalQuestions: Int = 20
+    var currentQuestionIndex: Int = 1
     let onCompletion: ((Bool) -> Void)?
 
     @State private var showResult = false
@@ -22,11 +24,17 @@ struct AminoAcidQuizView: View {
 
     var body: some View {
         VStack {
+            if isFullQuiz {
+                ProgressView(value: Double(currentQuestionIndex), total: Double(totalQuestions))
+                    .progressViewStyle(LinearProgressViewStyle())
+                    .padding(.horizontal)
+            }
+
             Text("Amino Acid: \(aminoAcid.model.name)")
                 .font(.title)
                 .padding(.bottom, 10)
-            Spacer()
 
+            Spacer()
             sideChainStructure
                 .padding()
 
@@ -44,7 +52,7 @@ struct AminoAcidQuizView: View {
         }
         .sheet(isPresented: $showResult) {
             successBottomSheet
-                .presentationDetents([.height(200)])
+                .presentationDetents([.height(250)])
                 .presentationDragIndicator(.visible)
         }
     }
@@ -55,12 +63,13 @@ struct AminoAcidQuizView: View {
                 .font(.title2)
                 .bold()
 
-            HStack(alignment: .center) {
+            HStack(alignment: .center, spacing: 4) {
                 ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
                     if index != 0 {
                         Text("-")
                             .font(.title)
                             .foregroundStyle(.primary)
+                            .frame(minWidth: 20)
                     }
                     VStack {
                         if let firstChild = chain.child.first {
@@ -136,13 +145,15 @@ struct AminoAcidQuizView: View {
                 .bold()
                 .foregroundColor(isCorrect ? .green : .red)
 
-            Text(isCorrect ? "You completed the side chain correctly!" : "Ahh it's not the right answer!")
+            Text(isCorrect ? "Well done! You've placed all atoms correctly." : "Oops! Try again.")
 
             if isCorrect {
                 if isFullQuiz {
                     Button("Next Question") {
-                        onCompletion?(isCorrect)
                         showResult = false
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            onCompletion?(isCorrect)
+                        }
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
@@ -151,9 +162,9 @@ struct AminoAcidQuizView: View {
                     .cornerRadius(10)
                 } else {
                     Button("OK") {
-                        dismiss()
                         showResult = false
                         markQuizAsCompleted()
+                        dismiss()
                     }
                     .padding()
                     .frame(maxWidth: .infinity)
@@ -167,7 +178,7 @@ struct AminoAcidQuizView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(Color.blue)
+                .background(Color.red)
                 .foregroundColor(.white)
                 .cornerRadius(10)
             }
@@ -189,7 +200,7 @@ struct AminoAcidQuizView: View {
         mainChains.append(contentsOf: sideChains)
         return mainChains
     }
-    
+
     private func markQuizAsCompleted() {
         if !completedAminoAcids.contains(aminoAcid.model.name) {
             completedAminoAcids.append(aminoAcid.model.name)

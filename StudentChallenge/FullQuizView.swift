@@ -32,6 +32,8 @@ struct FullQuizView: View {
             aminoAcid: aminoAcids[currentIndex],
             completedAminoAcids: Binding.constant([]),
             isFullQuiz: true,
+            totalQuestions: aminoAcids.count,
+            currentQuestionIndex: currentIndex,
             onCompletion: { isCorrect in
                 if isCorrect { score += 1 }
                 goToNextQuestion()
