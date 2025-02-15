@@ -58,7 +58,9 @@ struct AminoAcidQuizView: View {
             HStack(alignment: .center) {
                 ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
                     if index != 0 {
-                        Text("-").font(.title)
+                        Text("-")
+                            .font(.title)
+                            .foregroundStyle(.primary)
                     }
                     VStack {
                         if let firstChild = chain.child.first {
@@ -149,8 +151,8 @@ struct AminoAcidQuizView: View {
                     .cornerRadius(10)
                 } else {
                     Button("OK") {
-                        showResult = false
                         dismiss()
+                        showResult = false
                         markQuizAsCompleted()
                     }
                     .padding()
