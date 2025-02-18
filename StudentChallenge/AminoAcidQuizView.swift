@@ -122,20 +122,23 @@ struct AminoAcidQuizView: View {
     }
     
     private var checkButton: some View {
-        Button("Check Answer") {
+        Button {
             showResult = true
             if dict.isEmpty || dict.count != shuffledAnswers.count {
                 isCorrect = false
             } else {
                 isCorrect = dict.values.allSatisfy { $0 }
             }
+        } label: {
+            Text("Check Answer")
+                .sensoryFeedback(.warning, trigger: isCorrect)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(10)
         }
-        .sensoryFeedback(.warning, trigger: isCorrect)
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.green)
-        .foregroundColor(.white)
-        .cornerRadius(10)
+        
     }
     
     private var successBottomSheet: some View {
@@ -149,38 +152,44 @@ struct AminoAcidQuizView: View {
 
             if isCorrect {
                 if isFullQuiz {
-                    Button("Next Question") {
+                    Button {
                         showResult = false
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                             onCompletion?(isCorrect)
                         }
+                    } label: {
+                        Text("Next Question")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
                 } else {
-                    Button("OK") {
+                    Button {
                         showResult = false
                         markQuizAsCompleted()
                         dismiss()
+                    } label: {
+                        Text("OK")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                     }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
                 }
             } else {
-                Button("Try Again") {
+                Button {
                     showResult = false
+                } label: {
+                    Text("Try Again")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(10)
             }
         }
         .padding()
