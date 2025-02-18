@@ -52,7 +52,7 @@ struct AminoAcidQuizView: View {
                 .padding()
 
             Spacer()
-            Text("Drag the correct atoms into the blanks")
+            Text("Drag the correct groups into the blanks")
                 .font(.headline)
                 .padding()
 
@@ -161,7 +161,7 @@ struct AminoAcidQuizView: View {
                 .bold()
                 .foregroundColor(isCorrect ? .green : .red)
 
-            Text(isCorrect ? "Well done! You've placed all atoms correctly." : "Oops! Try again.")
+            Text(isCorrect ? "Well done! You've placed all groups correctly." : "Oops! Try again.")
 
             if isCorrect {
                 if isFullQuiz {

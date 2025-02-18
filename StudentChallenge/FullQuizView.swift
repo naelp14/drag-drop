@@ -7,6 +7,7 @@ struct FullQuizView: View {
     @State private var showFinalResult = false
     @State private var score = 0
     @State private var resetTrigger = UUID()
+    @Environment(\.dismiss) private var dismiss
 
     init(category: String? = nil) {
         self.category = category
@@ -47,10 +48,11 @@ struct FullQuizView: View {
                 .font(.largeTitle)
                 .bold()
             
-            Text("You scored \(score) out of \(aminoAcids.count)")
+            Text("You should try another to challenge yourself!")
                 .font(.title2)
+                .multilineTextAlignment(.center)
 
-            Button("Restart Quiz") {
+            Button("Back home") {
                 restartQuiz()
             }
             .padding()
@@ -70,10 +72,6 @@ struct FullQuizView: View {
     }
 
     private func restartQuiz() {
-        aminoAcids.shuffle()
-        currentIndex = 0
-        score = 0
-        resetTrigger = UUID()
-        showFinalResult = false
+        dismiss()
     }
 }
