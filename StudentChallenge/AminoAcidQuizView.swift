@@ -25,6 +25,19 @@ struct AminoAcidQuizView: View {
     var body: some View {
         VStack {
             if isFullQuiz {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        dismiss()
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .resizable()
+                            .frame(width: 30, height: 30)
+                            .foregroundColor(.gray)
+                    }
+                    .padding()
+                }
+
                 ProgressView(value: Double(currentQuestionIndex), total: Double(totalQuestions))
                     .progressViewStyle(LinearProgressViewStyle())
                     .padding(.horizontal)

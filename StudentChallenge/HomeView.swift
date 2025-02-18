@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var showCategorySheet = false
     @State private var selectedCategory: String? = nil
     @State private var navigateToCategoryQuiz = false
+    @State private var showFullQuizView = false
 
     var body: some View {
         NavigationStack {
@@ -39,8 +40,8 @@ struct HomeView: View {
                 
                 Spacer()
                 
-                NavigationLink {
-                    FullQuizView()
+                Button {
+                    showFullQuizView = true
                 } label: {
                     Text("Start")
                         .font(.title2)
@@ -78,20 +79,30 @@ struct HomeView: View {
                 Spacer()
             }
             .padding()
-            .navigationDestination(isPresented: $navigateToCategoryQuiz) {
-                if let category = selectedCategory {
-                    FullQuizView(category: category)
-                }
-            }
+        }
+        .fullScreenCover(isPresented: $showFullQuizView) {
+            FullQuizView()
         }
         .sheet(isPresented: $showCategorySheet) {
             CategorySelectionSheet { selectedCategory in
-                showCategorySheet = false
                 self.selectedCategory = selectedCategory
-                self.navigateToCategoryQuiz = true
+                showCategorySheet = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                    self.navigateToCategoryQuiz = true
+                })
             }
             .presentationDetents([.medium])
         }
+        .onChange(of: selectedCategory, { _, newValue in
+            if newValue != nil {
+                navigateToCategoryQuiz = true
+            }
+        })
+        .fullScreenCover(isPresented: $navigateToCategoryQuiz, content: {
+            if let category = selectedCategory {
+                FullQuizView(category: category)
+            }
+        })
     }
     
     private var aminoAcidStructure: some View {
