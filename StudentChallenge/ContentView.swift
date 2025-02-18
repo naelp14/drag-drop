@@ -21,7 +21,7 @@ struct ContentView: View {
             AminoAcidSelectionView()
                 .tabItem {
                     Image(systemName: "list.bullet")
-                    Text("Amino Acids")
+                    Text("Browse")
                 }
         }
     }

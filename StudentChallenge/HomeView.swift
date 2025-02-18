@@ -15,12 +15,6 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Text("Side Chain Memorization Quest")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .shadow(radius: 5)
-                
                 ZStack {
                     RoundedRectangle(cornerRadius: 20)
                         .fill(Color.white.opacity(0.2))
@@ -30,6 +24,20 @@ struct HomeView: View {
                     aminoAcidStructure
                 }
                 .padding()
+                
+                Text("Side Chain Memorization Quest")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .shadow(radius: 5)
+                
+                Text("Turn Complex Chemistry into Simple Memory!")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .multilineTextAlignment(.center)
+                    .shadow(radius: 5)
+                
+                Spacer()
                 
                 NavigationLink {
                     FullQuizView()
@@ -87,30 +95,45 @@ struct HomeView: View {
     }
     
     private var aminoAcidStructure: some View {
-        HStack {
-            VStack {
-                Text("H").foregroundColor(.red)
-                Text("|")
-                Text("N").foregroundColor(.red)
-                Text("|")
-                Text("H").foregroundColor(.red)
+        ZStack {
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.6))
+                .shadow(radius: 5)
+                .frame(width: 200, height: 180)
+                .rotationEffect(.degrees(30))
+                .offset(x: -5, y: -5)
+            
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.white.opacity(0.9))
+                .shadow(radius: 5)
+                .frame(width: 200, height: 180)
+            
+            HStack {
+                VStack {
+                    Text("H").foregroundColor(.red)
+                    Text("|")
+                    Text("N").foregroundColor(.red)
+                    Text("|")
+                    Text("H").foregroundColor(.red)
+                }
+                Text("-").font(.title)
+                VStack {
+                    Text("H")
+                    Text("|")
+                    Text("C")
+                    Text("|")
+                    Text("R")
+                }
+                Text("-").font(.title)
+                VStack {
+                    Text("O").foregroundColor(.purple)
+                    Text("||")
+                    Text("C")
+                    Text("|")
+                    Text("OH").foregroundColor(.purple)
+                }
             }
-            Text("- ").font(.title)
-            VStack {
-                Text("H")
-                Text("|")
-                Text("C")
-                Text("|")
-                Text("R")
-            }
-            Text(" -").font(.title)
-            VStack {
-                Text("O").foregroundColor(.purple)
-                Text("||")
-                Text("C")
-                Text("|")
-                Text("OH").foregroundColor(.purple)
-            }
+            .padding(20)
         }
     }
 }

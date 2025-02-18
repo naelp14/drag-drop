@@ -9,34 +9,35 @@ import SwiftUI
 
 struct AminoAcidSelectionView: View {
     @State private var completedAminoAcids: [String] = UserDefaults.standard.getArray(forKey: completedAminoAcidsKey)
+    @State private var searchText = ""
     
     private var groupedAminoAcids: [String: [AminoAcidType]] = {
         return Dictionary(grouping: AminoAcidType.allCases, by: { $0.model.category })
     }()
-
-    var body: some View {
-        NavigationStack {
-            VStack {
-                list
+    
+    private var filteredAminoAcids: [String: [AminoAcidType]] {
+        if searchText.isEmpty {
+            return groupedAminoAcids
+        } else {
+            return groupedAminoAcids.compactMapValues { aminoAcids in
+                let filtered = aminoAcids.filter { $0.model.name.localizedCaseInsensitiveContains(searchText) }
+                return filtered.isEmpty ? nil : filtered
             }
         }
     }
-    
-    private var title: some View {
-        Text("Select an Amino Acid Quiz")
-            .font(.title)
-            .bold()
-            .padding()
-    }
-    
-    private var list: some View {
-        List {
-            categorySections
+
+    var body: some View {
+        NavigationStack {
+            List {
+                categorySections
+            }
+            .navigationTitle("Browse")
+            .searchable(text: $searchText, prompt: "Search Amino Acids")
         }
     }
     
     private var categorySections: some View {
-        ForEach(groupedAminoAcids.keys.sorted(), id: \.self) { category in
+        ForEach(filteredAminoAcids.keys.sorted(), id: \.self) { category in
             Section(header: Text(category).bold()) {
                 aminoAcidRows(for: category)
             }
@@ -44,7 +45,7 @@ struct AminoAcidSelectionView: View {
     }
     
     private func aminoAcidRows(for category: String) -> some View {
-        ForEach(groupedAminoAcids[category]!, id: \.self) { aminoAcid in
+        ForEach(filteredAminoAcids[category]!, id: \.self) { aminoAcid in
             aminoAcidRow(for: aminoAcid)
         }
     }
