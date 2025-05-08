@@ -48,9 +48,15 @@ struct FullQuizView: View {
                 .font(.largeTitle)
                 .bold()
             
-            Text("You should try another to challenge yourself!")
-                .font(.title2)
-                .multilineTextAlignment(.center)
+            if category == nil {
+                Text("You completed all of the side chains!")
+                    .font(.title2)
+                    .multilineTextAlignment(.center)
+            } else {
+                Text("You should try another to challenge yourself!")
+                    .font(.title2)
+                    .multilineTextAlignment(.center)
+            }
 
             Button("Back home") {
                 restartQuiz()

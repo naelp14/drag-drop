@@ -76,53 +76,65 @@ struct AminoAcidQuizView: View {
                 .font(.title2)
                 .bold()
 
-            HStack(alignment: .center, spacing: 4) {
-                ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
-                    if index != 0 {
-                        Text("-")
-                            .font(.title)
-                            .foregroundStyle(.primary)
-                            .frame(minWidth: 20)
-                    }
-                    VStack {
-                        if let firstChild = chain.child.first {
-                            DropTargetView(
-                                correctAnswer: firstChild,
-                                index: (index * 10) + 1,
-                                shouldShowAnswer: $showResult
-                            ) { index, isCorrect in dict[index] = isCorrect }
-                        } else {
-                            Text(" ")
-                                .frame(height: 50)
-                        }
-
-                        Text(chain.child.isEmpty ? " " : "|")
-                            .frame(height: 10)
-
+            if aminoAcid.model.correctRGroup.count >= 4 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    answerSkeleton
+                }
+                .frame(height: 200)
+            } else {
+                answerSkeleton
+                    .frame(height: 180)
+            }
+        }
+    }
+    
+    private var answerSkeleton: some View {
+        HStack(alignment: .center, spacing: 4) {
+            ForEach(Array(aminoAcid.model.correctRGroup.enumerated()), id: \.offset) { index, chain in
+                if index != 0 {
+                    Text("-")
+                        .font(.title)
+                        .foregroundStyle(.primary)
+                        .frame(minWidth: 20)
+                }
+                VStack {
+                    if let firstChild = chain.child.first {
                         DropTargetView(
-                            correctAnswer: chain.atom,
-                            index: (index * 10) + 2,
+                            correctAnswer: firstChild,
+                            index: (index * 10) + 1,
                             shouldShowAnswer: $showResult
                         ) { index, isCorrect in dict[index] = isCorrect }
-
-                        Text(chain.child.count > 1 ? "|" : " ")
-                            .frame(height: 10)
-
-                        if chain.child.count > 1, let lastChild = chain.child.last {
-                            DropTargetView(
-                                correctAnswer: lastChild,
-                                index: (index * 10) + 3,
-                                shouldShowAnswer: $showResult
-                            ) { index, isCorrect in dict[index] = isCorrect }
-                        } else {
-                            Text(" ")
-                                .frame(height: 50)
-                        }
+                    } else {
+                        Text(" ")
+                            .frame(height: 50)
+                    }
+                    
+                    Text(chain.child.isEmpty ? " " : "|")
+                        .frame(height: 10)
+                    
+                    DropTargetView(
+                        correctAnswer: chain.atom,
+                        index: (index * 10) + 2,
+                        shouldShowAnswer: $showResult
+                    ) { index, isCorrect in dict[index] = isCorrect }
+                    
+                    Text(chain.child.count > 1 ? "|" : " ")
+                        .frame(height: 10)
+                    
+                    if chain.child.count > 1, let lastChild = chain.child.last {
+                        DropTargetView(
+                            correctAnswer: lastChild,
+                            index: (index * 10) + 3,
+                            shouldShowAnswer: $showResult
+                        ) { index, isCorrect in dict[index] = isCorrect }
+                    } else {
+                        Text(" ")
+                            .frame(height: 50)
                     }
                 }
             }
-            .frame(height: 180)
         }
+        .padding(4)
     }
     
     private var answerOptions: some View {

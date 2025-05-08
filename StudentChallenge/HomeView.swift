@@ -16,15 +16,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.2))
-                        .frame(height: 200)
-                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
-                    
-                    aminoAcidStructure
-                }
-                .padding()
+                aminoAcidStructure
                 
                 Text("Side Chain Memorization Quest")
                     .font(.largeTitle)
@@ -108,39 +100,43 @@ struct HomeView: View {
     private var aminoAcidStructure: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.6))
+                .fill(Color.cyan.opacity(0.5))
                 .shadow(radius: 5)
                 .frame(width: 200, height: 180)
-                .rotationEffect(.degrees(30))
+                .rotationEffect(.degrees(15))
                 .offset(x: -5, y: -5)
             
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.9))
+                .fill(Color.cyan.opacity(0.9))
                 .shadow(radius: 5)
                 .frame(width: 200, height: 180)
             
             HStack {
                 VStack {
                     Text("H").foregroundColor(.red)
-                    Text("|")
+                    Text("|").foregroundColor(.primary)
                     Text("N").foregroundColor(.red)
-                    Text("|")
+                    Text("|").foregroundColor(.primary)
                     Text("H").foregroundColor(.red)
                 }
-                Text("-").font(.title)
+                Text("-")
+                    .font(.title)
+                    .foregroundColor(.primary)
                 VStack {
-                    Text("H")
-                    Text("|")
-                    Text("C")
-                    Text("|")
-                    Text("R")
+                    Text("H").foregroundColor(.primary)
+                    Text("|").foregroundColor(.primary)
+                    Text("C").foregroundColor(.primary)
+                    Text("|").foregroundColor(.primary)
+                    Text("R").foregroundColor(.primary)
                 }
-                Text("-").font(.title)
+                Text("-")
+                    .font(.title)
+                    .foregroundColor(.primary)
                 VStack {
                     Text("O").foregroundColor(.purple)
-                    Text("||")
-                    Text("C")
-                    Text("|")
+                    Text("||").foregroundColor(.primary)
+                    Text("C").foregroundColor(.primary)
+                    Text("|").foregroundColor(.primary)
                     Text("OH").foregroundColor(.purple)
                 }
             }

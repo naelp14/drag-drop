@@ -17,7 +17,7 @@ struct DropTargetView: View {
 
     var body: some View {
         Text(input)
-            .foregroundColor(input.isEmpty ? .red : .black)
+            .foregroundColor(input.isEmpty ? .red : .primary)
             .frame(minWidth: 50)
             .frame(height: 50)
             .background(Color.yellow.opacity(0.3))

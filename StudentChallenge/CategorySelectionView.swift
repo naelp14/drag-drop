@@ -31,10 +31,10 @@ struct CategorySelectionSheet: View {
                 }) {
                     Text(category)
                         .frame(maxWidth: .infinity)
+                        .foregroundStyle(.primary)
                         .padding()
                         .background(Color.gray.opacity(0.2))
                         .cornerRadius(8)
-                        .foregroundStyle(.black)
                 }
                 .padding(.horizontal, 20)
             }
